@@ -8,7 +8,6 @@ import * as Notifications from 'expo-notifications';
 
 const STORAGE_KEY = 'events';
 
-// How notifications are shown while the app is open
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -19,7 +18,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Date as YYYY-MM-DD (used for display and date search)
+
 const fmtDate = (d) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const fmtTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -35,7 +34,7 @@ export default function App() {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState('');
 
-  // On app start: load saved events and ask notification permission
+
   useEffect(() => {
     (async () => {
       const saved = await AsyncStorage.getItem(STORAGE_KEY);
@@ -48,17 +47,16 @@ export default function App() {
       } catch (e) {
         console.log('Channel setup skipped');
       }
-      await Notifications.requestPermissionsAsync(); // needed on Android 13+
+      await Notifications.requestPermissionsAsync();
     })();
   }, []);
 
-  // Update screen and save to phone storage
+
   const saveEvents = async (list) => {
     setEvents(list);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(list));
   };
 
-  // Schedule a notification at the event time; returns its id
   const scheduleReminder = async () => {
     if (!remind) return null;
     try {
@@ -84,7 +82,6 @@ export default function App() {
     setEditingId(null);
   };
 
-  // Add a new event, or update the one being edited
   const submitEvent = async () => {
     if (name.trim() === '') {
       Alert.alert('Invalid input', 'Event name is required.');
@@ -121,7 +118,6 @@ export default function App() {
     resetForm();
   };
 
-  // Put an event's details into the form for editing
   const startEdit = (e) => {
     setEditingId(e.id);
     setName(e.name);
@@ -129,7 +125,7 @@ export default function App() {
     setDate(new Date(e.dateTime));
   };
 
-  // Confirm, then delete
+
   const deleteEvent = (e) => {
     Alert.alert('Delete event', 'Are you sure you want to delete this event?', [
       { text: 'Cancel', style: 'cancel' },
@@ -145,7 +141,7 @@ export default function App() {
     ]);
   };
 
-  // Date picker: change only the date part / only the time part
+
   const onDateChange = (ev, selected) => {
     setShowDate(false);
     if (ev.type === 'set' && selected) {
@@ -163,7 +159,7 @@ export default function App() {
     }
   };
 
-  // Search by name or date, then sort. Past events are separated.
+
   const q = search.trim().toLowerCase();
   const filtered = events.filter(
     (e) => q === '' || e.name.toLowerCase().includes(q) || fmtDate(new Date(e.dateTime)).includes(q)
